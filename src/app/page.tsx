@@ -1,65 +1,92 @@
-import Image from "next/image";
+"use client"
+
+import React from "react"
+import { useCreateSession, useSessions, useStartSession, useStopSession } from "@/features/sessions/hooks"
+import type { CreateSessionBody } from "@/features/sessions/schemas"
 
 export default function Home() {
+  const { data, isLoading, isError, error } = useSessions()
+  const create = useCreateSession()
+  const start = useStartSession()
+  const stop = useStopSession()
+
+  const [name, setName] = React.useState("")
+  const [engine, setEngine] = React.useState<CreateSessionBody["engine"] | "">("")
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen p-6 space-y-6">
+      <h1 className="text-2xl font-semibold">WAHA Dashboard</h1>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-medium">Create Session</h2>
+        <div className="flex gap-2 items-center">
+          <input
+            className="border rounded px-3 py-2 w-60"
+            placeholder="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <select
+            className="border rounded px-3 py-2"
+            value={engine}
+            onChange={(e) =>
+              setEngine((e.target.value as CreateSessionBody["engine"]) || "")
+            }
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <option value="">engine (optional)</option>
+            <option value="webjs">webjs</option>
+            <option value="whatsapp-web">whatsapp-web</option>
+            <option value="go-whatsapp">go-whatsapp</option>
+          </select>
+          <button
+            className="px-4 py-2 rounded bg-black text-white disabled:opacity-50"
+            disabled={!name || create.isPending}
+            onClick={() =>
+              create.mutate({ name, engine: engine || undefined })
+            }
           >
-            Documentation
-          </a>
+            {create.isPending ? "Creating…" : "Create"}
+          </button>
         </div>
-      </main>
+        {create.isError ? (
+          <div className="text-red-600 text-sm">{String((create.error as Error)?.message)}</div>
+        ) : null}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-medium">Sessions</h2>
+        {isLoading ? (
+          <div>Loading…</div>
+        ) : isError ? (
+          <div className="text-red-600">{String((error as Error)?.message)}</div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {data?.data?.map((s, i) => (
+              <div key={i} className="border rounded p-4 space-y-2">
+                <div className="font-mono text-sm break-all">{s.id}</div>
+                <div className="text-neutral-500">{s.state}</div>
+                <div className="flex gap-2">
+                  <button
+                    className="px-3 py-1 rounded border"
+                    onClick={() => start.mutate(s.id)}
+                    disabled={start.isPending}
+                  >
+                    Start
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded border"
+                    onClick={() => stop.mutate(s.id)}
+                    disabled={stop.isPending}
+                  >
+                    Stop
+                  </button>
+                </div>
+              </div>
+            ))}
+            {!data?.data?.length && <div className="text-neutral-500">No sessions yet.</div>}
+          </div>
+        )}
+      </section>
     </div>
-  );
+  )
 }
