@@ -3,6 +3,18 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function SignInPage() {
   const router = useRouter()
@@ -26,22 +38,48 @@ export default function SignInPage() {
   }
 
   return (
-    <div style={{ maxWidth: 360, margin: "40px auto" }}>
-      <h1>Sign In</h1>
-      <form onSubmit={onSubmit}>
-        <div>
-          <label>Email</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
-        </div>
-        <div>
-          <label>Password</label>
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
-        </div>
-        {error ? <p style={{ color: "red" }}>{error}</p> : null}
-        <button disabled={loading} type="submit">
-          {loading ? "Signing in..." : "Sign In"}
-        </button>
-      </form>
+    <div className="mx-auto my-16 max-w-sm px-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Sign In</CardTitle>
+          <CardDescription>Access your account</CardDescription>
+        </CardHeader>
+        <form onSubmit={onSubmit}>
+          <CardContent className="space-y-4">
+            {error ? (
+              <Alert variant="destructive">
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="mt-4">
+            <Button className="w-full" type="submit" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   )
 }

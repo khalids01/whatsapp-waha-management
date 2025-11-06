@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prisma:generate": "prisma generate --schema prisma/schema",
-    "prisma:migrate": "prisma migrate dev --schema prisma/schema",
-    "prisma:studio": "prisma studio --schema prisma/schema"
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -76,6 +76,6 @@
     "typescript": "^5"
   },
   "prisma": {
-    "schema": "prisma/schema"
-  }
+    "seed": "bun prisma/seed/index.ts"
+  } 
 }
