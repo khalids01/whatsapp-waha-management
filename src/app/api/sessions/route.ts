@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server"
-import { CreateSessionBodySchema } from "@/features/sessions/schemas"
+import { CreateSessionBodySchema, type WahaSessionRaw } from "@/features/sessions/schemas"
 import * as svc from "@/features/sessions/services"
 
 export async function GET() {
   try {
-    const data = await svc.listSessions()
-    return NextResponse.json(data)
+    const data = (await svc.listSessions()) as WahaSessionRaw[]
+    const normalized = data.map((s) => ({ id: s.id ?? s.name ?? "", state: s.state ?? s.status ?? "" }))
+    return NextResponse.json(normalized)
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Unexpected error"
     return NextResponse.json({ error: message }, { status: 500 })
@@ -16,8 +17,9 @@ export async function POST(req: Request) {
   try {
     const json = await req.json()
     const parsed = CreateSessionBodySchema.parse(json)
-    const data = await svc.createSession(parsed)
-    return NextResponse.json(data, { status: 201 })
+    const data = (await svc.createSession(parsed)) as WahaSessionRaw
+    const normalized = { id: data.id ?? data.name ?? "", state: data.state ?? data.status ?? "" }
+    return NextResponse.json(normalized, { status: 201 })
   } catch (e: unknown) {
     const isZod = typeof e === "object" && e !== null && (e as { name?: string }).name === "ZodError"
     const message = e instanceof Error ? e.message : "Unexpected error"

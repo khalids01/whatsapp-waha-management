@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
 import * as svc from "@/features/sessions/services"
 
-export async function POST(_req: Request, { params }: { params: { id: string } }) {
+export async function POST(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   try {
-    const data = await svc.startSession(params.id)
+    const { id } = await ctx.params
+    const data = await svc.startSession(id)
     return NextResponse.json(data)
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Unexpected error"

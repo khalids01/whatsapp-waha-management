@@ -172,7 +172,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/khalid/Desktop/projects/saas/whatsapp/prisma/generated",
+      "value": "/home/khalid/Desktop/projects/saas/waha/whatsapp/prisma/generated",
       "fromEnvVar": null
     },
     "config": {
@@ -187,11 +187,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/khalid/Desktop/projects/saas/whatsapp/prisma/schema/schema.prisma",
+    "sourceFilePath": "/home/khalid/Desktop/projects/saas/waha/whatsapp/prisma/schema/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../schema",
@@ -201,6 +201,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
