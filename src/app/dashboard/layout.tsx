@@ -21,10 +21,12 @@ import {
 } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
-import { MessageCircle, Settings, Webhook, Users, LayoutDashboard, MessageSquare, Tags, Activity } from "lucide-react"
+import { MessageCircle, Settings, Webhook, Users, LayoutDashboard, MessageSquare, Tags, Activity, LayoutList } from "lucide-react"
+import { authClient } from "@/lib/auth-client"
 
 const nav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/applications", label: "Applications", icon: LayoutList },
   { href: "/dashboard/sessions", label: "Sessions", icon: Users },
   { href: "/dashboard/chats", label: "Chats", icon: MessageSquare },
   { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
