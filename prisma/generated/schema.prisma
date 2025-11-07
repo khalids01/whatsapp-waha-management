@@ -68,3 +68,58 @@ generator client {
   output       = "../generated"
   moduleFormat = "esm"
 }
+
+// Multi-tenant models for applications, API keys, and messages
+
+model Application {
+  id        String   @id @default(cuid())
+  userId    String // references User.id from auth system (no FK relation defined here)
+  name      String
+  slug      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  apiKeys  ApiKey[]
+  messages Message[]
+
+  @@unique([userId, slug])
+  @@map("application")
+}
+
+model ApiKey {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  keyHash   String
+  prefix    String
+  lastFour  String
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([applicationId, enabled])
+  @@map("api_key")
+}
+
+enum MessageStatus {
+  queued
+  sent
+  failed
+}
+
+model Message {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  to                String // WA chatId, e.g. 11111111111@c.us
+  text              String
+  status            MessageStatus
+  providerMessageId String?
+  error             String?
+  sessionId         String        @default("default")
+  createdAt         DateTime      @default(now())
+
+  @@map("message")
+}

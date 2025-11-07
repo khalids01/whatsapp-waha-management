@@ -167,6 +167,37 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ApplicationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ApiKeyScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  keyHash: 'keyHash',
+  prefix: 'prefix',
+  lastFour: 'lastFour',
+  enabled: 'enabled',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  to: 'to',
+  text: 'text',
+  status: 'status',
+  providerMessageId: 'providerMessageId',
+  error: 'error',
+  sessionId: 'sessionId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -181,13 +212,20 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.MessageStatus = exports.$Enums.MessageStatus = {
+  queued: 'queued',
+  sent: 'sent',
+  failed: 'failed'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  Application: 'Application',
+  ApiKey: 'ApiKey',
+  Message: 'Message'
 };
 
 /**
