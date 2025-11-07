@@ -22,7 +22,6 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
 import { MessageCircle, Settings, Webhook, Users, LayoutDashboard, MessageSquare, Tags, Activity, LayoutList } from "lucide-react"
-import { authClient } from "@/lib/auth-client"
 
 const nav = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },

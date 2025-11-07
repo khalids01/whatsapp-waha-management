@@ -33,5 +33,7 @@ export const endpoints = {
     dashboard: "/dashboard",
     applications: "/dashboard/applications",
     application: (slug: string) => `/dashboard/applications/${encodeURIComponent(slug)}`,
+    signin: "/sign-in",
+    signup: "/sign-up",
   },
 } as const;

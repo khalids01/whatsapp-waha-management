@@ -13,6 +13,10 @@ export const auth = betterAuth({
         name: appConfig.sessionTokenName
       }
     }
+  },
+  session:{
+    expiresIn: 3600 * 24 * 30,
+    updateAge: 3600 * 24 * 7,
   }
 })
 
