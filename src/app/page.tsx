@@ -1,92 +1,73 @@
 "use client"
 
-import React from "react"
-import { useCreateSession, useSessions, useStartSession, useStopSession } from "@/features/sessions/hooks"
-import type { CreateSessionBody } from "@/features/sessions/schemas"
+import Link from "next/link"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Button } from "@/components/ui/button"
+import { endpoints } from "@/constants/endpoints"
 
 export default function Home() {
-  const { data, isLoading, isError, error } = useSessions()
-  const create = useCreateSession()
-  const start = useStartSession()
-  const stop = useStopSession()
-
-  const [name, setName] = React.useState("")
-  const [engine, setEngine] = React.useState<CreateSessionBody["engine"] | "">("")
-
   return (
-    <div className="min-h-screen p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">WAHA Dashboard</h1>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Create Session</h2>
-        <div className="flex gap-2 items-center">
-          <input
-            className="border rounded px-3 py-2 w-60"
-            placeholder="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <select
-            className="border rounded px-3 py-2"
-            value={engine}
-            onChange={(e) =>
-              setEngine((e.target.value as CreateSessionBody["engine"]) || "")
-            }
-          >
-            <option value="">engine (optional)</option>
-            <option value="webjs">webjs</option>
-            <option value="whatsapp-web">whatsapp-web</option>
-            <option value="go-whatsapp">go-whatsapp</option>
-          </select>
-          <button
-            className="px-4 py-2 rounded bg-black text-white disabled:opacity-50"
-            disabled={!name || create.isPending}
-            onClick={() =>
-              create.mutate({ name, engine: engine || undefined })
-            }
-          >
-            {create.isPending ? "Creating…" : "Create"}
-          </button>
-        </div>
-        {create.isError ? (
-          <div className="text-red-600 text-sm">{String((create.error as Error)?.message)}</div>
-        ) : null}
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Sessions</h2>
-        {isLoading ? (
-          <div>Loading…</div>
-        ) : isError ? (
-          <div className="text-red-600">{String((error as Error)?.message)}</div>
-        ) : (
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {data?.data?.map((s, i) => (
-              <div key={i} className="border rounded p-4 space-y-2">
-                <div className="font-mono text-sm break-all">{s.id}</div>
-                <div className="text-neutral-500">{s.state}</div>
-                <div className="flex gap-2">
-                  <button
-                    className="px-3 py-1 rounded border"
-                    onClick={() => start.mutate(s.id)}
-                    disabled={start.isPending}
-                  >
-                    Start
-                  </button>
-                  <button
-                    className="px-3 py-1 rounded border"
-                    onClick={() => stop.mutate(s.id)}
-                    disabled={stop.isPending}
-                  >
-                    Stop
-                  </button>
-                </div>
-              </div>
-            ))}
-            {!data?.data?.length && <div className="text-neutral-500">No sessions yet.</div>}
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-10 border-b bg-background/60 backdrop-blur">
+        <div className="mx-auto w-full max-w-6xl px-4 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="inline-block size-6 rounded bg-primary/20" />
+            <span className="font-semibold">WAHA Manager</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link href={endpoints.pages.signin}>
+              <Button>Sign In</Button>
+            </Link>
           </div>
-        )}
-      </section>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <main className="flex-1">
+        <section className="mx-auto w-full max-w-6xl px-4 py-16 md:py-24">
+          <div className="text-center space-y-6">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight">
+              Open‑source dashboard for WAHA
+            </h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Manage sessions, send messages, and explore APIs with a clean, modern UI. Built with Next.js, React Query, and Shadcn UI.
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <Link href="/docs">
+                <Button size="lg">View Docs</Button>
+              </Link>
+              <Link href={endpoints.pages.dashboard}>
+                <Button size="lg" variant="secondary">Go to Dashboard</Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Mini features */}
+          <div className="grid mt-14 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Feature title="Sessions" desc="Create, start, stop and monitor WAHA sessions." />
+            <Feature title="Messaging" desc="Send messages right from your dashboard." />
+            <Feature title="API Runner" desc="Interactive API tests with live responses." />
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t py-6 text-center text-sm text-muted-foreground">
+        <div className="mx-auto w-full max-w-6xl px-4">
+          <span>Made with ❤️ for the WAHA community • MIT Licensed</span>
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+function Feature({ title, desc }: { title: string; desc: string }) {
+  return (
+    <div className="rounded-lg border p-4 bg-muted/30">
+      <div className="font-medium">{title}</div>
+      <div className="text-sm text-muted-foreground">{desc}</div>
     </div>
   )
 }

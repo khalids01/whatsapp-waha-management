@@ -67,8 +67,8 @@ export default function ApplicationsPage() {
         <p className="text-sm text-red-500">{String(error)}</p>
       ) : apps && apps.data && apps.data.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {apps.data.map((app) => (
-            <Card key={app.id}>
+          {apps.data.map((app, i) => (
+            <Card key={i}>
               <CardHeader>
                 <CardTitle className="text-base">{app.name}</CardTitle>
               </CardHeader>

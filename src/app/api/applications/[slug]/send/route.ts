@@ -3,6 +3,7 @@ import { z } from "zod"
 import prisma from "@/lib/prisma"
 import { hashApiKey } from "@/lib/apiKeys"
 import { wahaClient } from "@/lib/wahaClient"
+import { endpoints } from "@/constants/endpoints"
 
 const SendSchema = z.object({
   to: z.string().min(3),
@@ -39,7 +40,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
     })
     if (!key) return NextResponse.json({ error: "Invalid API key" }, { status: 401 })
 
-    // Call WAHA sendText (wahaClient has baseURL that already ends with /api)
+    // Call WAHA sendText (wahaClient has baseURL; endpoint path handled via constants)
     const payload = {
       chatId: to,
       text,
@@ -50,8 +51,18 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
     }
 
     try {
-      const res = await wahaClient.post(`/${encodeURIComponent(sessionId)}/sendText`, payload)
-      const providerMessageId = (res.data?.id ?? res.data?.messageId ?? null) as string | null
+      const res = await wahaClient.post(endpoints.waha.chatting.send, payload)
+      const rawId = (res.data?.id ?? res.data?.messageId ?? null) as unknown
+      let providerMessageId: string | null = null
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (rawId && typeof rawId === "object" && rawId !== null && typeof (rawId as any)._serialized === "string") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        providerMessageId = String((rawId as any)._serialized)
+      } else if (typeof rawId === "string") {
+        providerMessageId = rawId
+      } else {
+        providerMessageId = null
+      }
 
       await prisma.message.create({
         data: {

@@ -42,7 +42,7 @@ export default function ManageApplicationPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl xl:max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">{slug}</h1>
         <Button onClick={onCreate} disabled={createKeyMutation.isPending}>
@@ -57,15 +57,15 @@ export default function ManageApplicationPage() {
           <CardContent className="pt-4 space-y-2">
             <div>
               <div className="text-sm text-muted-foreground">POST URL</div>
-              <Input readOnly value={sendEndpoint} onFocus={(e) => e.currentTarget.select()} />
+              <Input readOnly value={sendEndpoint} onFocus={(e) => e.currentTarget.select()} className="w-full" />
             </div>
             <div>
               <div className="text-sm text-muted-foreground">Example cURL</div>
-              <pre className="rounded-md bg-muted p-3 text-xs overflow-auto">
-                {`curl -X POST "${sendEndpoint}" \
-                  -H "x-api-key: <your-api-key>" \
-                  -H "Content-Type: application/json" \
-                  -d '{"to":"11111111111@c.us","text":"Hello!","sessionId":"default"}'`}
+              <pre suppressHydrationWarning className="rounded-md bg-muted p-3 text-xs overflow-x-auto w-full max-w-full">
+                {`curl -X POST "${sendEndpoint}" \\
+  -H "x-api-key: <your-api-key>" \\
+  -H "Content-Type: application/json" \\
+  -d '{\n    "to": "11111111111@c.us",\n    "text": "Hello!",\n    "sessionId": "default"\n  }'`}
               </pre>
             </div>
           </CardContent>

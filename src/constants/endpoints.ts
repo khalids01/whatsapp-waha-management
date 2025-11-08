@@ -4,7 +4,8 @@ export const endpoints = {
     app: (slug: string) => `/api/applications/${encodeURIComponent(slug)}`,
     keys: (slug: string) => `/api/applications/${encodeURIComponent(slug)}/keys`,
     key: (slug: string, id: string) => `/api/applications/${encodeURIComponent(slug)}/keys/${encodeURIComponent(id)}`,
-    overview: "/api/dashboard/overview"
+    overview: "/api/dashboard/overview",
+    sendMsg: "/api/chat/send"
   },
   waha: {
     auth:{
@@ -25,7 +26,7 @@ export const endpoints = {
       serverVersion: "/api/server/version",
     },
     chatting: {
-      send: "/api/chat/send",
+      send: "/api/sendText",
     }
 
   },

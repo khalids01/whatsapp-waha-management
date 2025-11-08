@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useChat } from "@/hooks/useChat"
+import axios from "axios"
+import { useMutation } from "@tanstack/react-query"
 
 export type ApiMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -21,44 +24,22 @@ export type ApiEndpoint = {
 
 export default function ApiTester({ endpoint, defaultApiKey }: { endpoint: ApiEndpoint; defaultApiKey?: string }) {
   const [apiKey, setApiKey] = useState(defaultApiKey ?? "")
+  const [url, setUrl] = useState(endpoint.path)
   const [body, setBody] = useState(endpoint.sampleBody ? JSON.stringify(endpoint.sampleBody, null, 2) : "")
-  const [loading, setLoading] = useState(false)
-  const [respStatus, setRespStatus] = useState<string>("")
-  const [respBody, setRespBody] = useState<string>("")
 
-  const send = async () => {
-    setLoading(true)
-    setRespStatus("")
-    setRespBody("")
-    try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" }
-      if (endpoint.headers) Object.entries(endpoint.headers).forEach(([k, v]) => v && (headers[k] = v))
-      if (endpoint.requiresApiKey && apiKey) headers["x-api-key"] = apiKey
+  const { mutate, isPending, data } = useMutation({
+    mutationFn: async (body: { sessionId: string, to: string, text: string }) => {
+      const res = await axios.post(url, body, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+        },
+      })
+      return res
+    },
+  })
 
-      const init: RequestInit = {
-        method: endpoint.method,
-        headers,
-        credentials: "include",
-      }
-      if (endpoint.method !== "GET" && endpoint.method !== "DELETE" && body.trim()) {
-        init.body = body
-      }
-      const res = await fetch(endpoint.path, init)
-      setRespStatus(`${res.status} ${res.statusText}`)
-      const text = await res.text()
-      try {
-        setRespBody(JSON.stringify(JSON.parse(text), null, 2))
-      } catch {
-        setRespBody(text)
-      }
-    } catch (e: unknown) {
-      setRespStatus("request_failed")
-      const msg = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : String(e)
-      setRespBody(msg)
-    } finally {
-      setLoading(false)
-    }
-  }
+
 
   return (
     <Card className="w-full">
@@ -70,6 +51,10 @@ export default function ApiTester({ endpoint, defaultApiKey }: { endpoint: ApiEn
       </CardHeader>
       <CardContent className="space-y-4">
         {endpoint.description && <p className="text-sm text-muted-foreground">{endpoint.description}</p>}
+        <div className="space-y-1">
+          <label className="text-sm">URL</label>
+          <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={endpoint.path} />
+        </div>
         {endpoint.requiresApiKey && (
           <div className="space-y-1">
             <label className="text-sm">API Key (sent as x-api-key)</label>
@@ -90,14 +75,14 @@ export default function ApiTester({ endpoint, defaultApiKey }: { endpoint: ApiEn
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-medium">{respStatus ? "Actual Response" : "Expected Response"}</div>
-              {respStatus && <div className="text-[10px] text-muted-foreground font-mono">{respStatus}</div>}
+              <div className="text-sm font-medium">{isPending ? "Actual Response" : "Expected Response"}</div>
+              {isPending && <div className="text-[10px] text-muted-foreground font-mono">{isPending}</div>}
             </div>
             <Textarea
               readOnly
               value={
-                respStatus
-                  ? respBody
+                isPending
+                  ? data
                   : (endpoint.expectedResponse ? JSON.stringify(endpoint.expectedResponse, null, 2) : "-")
               }
               className="font-mono min-h-40"
@@ -106,7 +91,7 @@ export default function ApiTester({ endpoint, defaultApiKey }: { endpoint: ApiEn
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={send} disabled={loading}>{loading ? "Sending..." : "Send Request"}</Button>
+          <Button onClick={() => mutate(JSON.parse(body))} disabled={isPending}>{isPending ? "Sending..." : "Send Request"}</Button>
         </div>
       </CardContent>
     </Card>

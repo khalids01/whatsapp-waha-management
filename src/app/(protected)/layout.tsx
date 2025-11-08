@@ -10,7 +10,7 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
     if (!session) {
         redirect(endpoints.pages.signin)
     }
-    return <div>{children}</div>
+    return <>{children}</>
 }
 
 export default ProtectedLayout;
