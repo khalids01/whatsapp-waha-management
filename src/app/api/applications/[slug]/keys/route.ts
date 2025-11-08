@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
 import { generateApiKey, hashApiKey } from "@/lib/apiKeys"
+import { withAuth } from "@/lib/withAuth"
 
-export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }> }) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const GET = withAuth(async (_req, ctx: { params: Promise<{ slug: string }> }, session) => {
   const { slug } = await ctx.params
 
   const app = await prisma.application.findFirst({ where: { userId: session.user.id, slug } })
@@ -18,12 +15,10 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
     select: { id: true, prefix: true, lastFour: true, enabled: true, createdAt: true },
   })
   return NextResponse.json(keys)
-}
+})
 
-export async function POST(_req: Request, ctx: { params: Promise<{ slug: string }> }) {
+export const POST = withAuth(async (_req, ctx: { params: Promise<{ slug: string }> }, session) => {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     const { slug } = await ctx.params
 
     const app = await prisma.application.findFirst({ where: { userId: session.user.id, slug } })
@@ -43,4 +38,4 @@ export async function POST(_req: Request, ctx: { params: Promise<{ slug: string 
     const message = e instanceof Error ? e.message : "Unexpected error"
     return NextResponse.json({ error: message }, { status: 500 })
   }
-}
+})

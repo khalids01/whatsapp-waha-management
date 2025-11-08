@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server"
 import * as svc from "@/features/sessions/services"
 import type { WahaSessionRaw } from "@/features/sessions/schemas"
+import { withAuth } from "@/lib/withAuth"
 
-export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+export const DELETE = withAuth(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await ctx.params
     const sessions = (await svc.listSessions()) as WahaSessionRaw[]
@@ -23,4 +24,4 @@ export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string 
     const message = e instanceof Error ? e.message : "Unexpected error"
     return NextResponse.json({ error: message }, { status: 500 })
   }
-}
+})

@@ -2,28 +2,21 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import prisma from "@/lib/prisma"
 import { slugify } from "@/lib/slug"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+import { withAuth } from "@/lib/withAuth"
 
 const CreateAppSchema = z.object({ name: z.string().min(2).max(100) })
 
-export async function GET() {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
+export const GET = withAuth(async (_req, _ctx, session) => {
   const apps = await prisma.application.findMany({
     where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
     select: { id: true, name: true, slug: true, createdAt: true, updatedAt: true },
   })
   return NextResponse.json(apps)
-}
+})
 
-export async function POST(req: Request) {
+export const POST = withAuth(async (req, _ctx, session) => {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
     const json = await req.json().catch(() => null)
     if (!json) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
     const parsed = CreateAppSchema.safeParse(json)
@@ -48,4 +41,4 @@ export async function POST(req: Request) {
     const message = e instanceof Error ? e.message : "Unexpected error"
     return NextResponse.json({ error: message }, { status: 500 })
   }
-}
+})

@@ -1,47 +1,20 @@
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
-import { wahaClient } from "@/lib/wahaClient"
-import { endpoints } from "@/constants/endpoints"
-import type { WahaHealth } from "@/types/waha"
+import { withAuth } from "@/lib/withAuth"
+import * as svc from "@/features/sessions/services"
+import type { WahaSessionRaw } from "@/features/sessions/schemas"
 
-export async function GET() {
+export const GET = withAuth(async () => {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const sessions = (await svc.listSessions()) as WahaSessionRaw[]
+    const total = sessions.length
+    const active = sessions.filter((s) => {
+      const state = String(s.state ?? s.status ?? "")
+      return !/(stop|stopped|close|closed|idle|inactive)/i.test(state)
+    }).length
 
-    const [appsCount, keysCount, messagesAgg, wahaHealth] = await Promise.all([
-      prisma.application.count({ where: { userId: session.user.id } }),
-      prisma.apiKey.count({ where: { application: { userId: session.user.id } } }),
-      prisma.message.aggregate({
-        _count: { _all: true },
-        _max: { createdAt: true },
-        where: { application: { userId: session.user.id } },
-      }),
-      (async () => {
-        try {
-          const resp = await wahaClient.get<WahaHealth>(endpoints.waha.observability.health)
-          console.log({resp})
-          return resp.data
-        } catch {
-          return null
-        }
-      })(),
-    ])
-
-    return NextResponse.json({
-      appsCount,
-      keysCount,
-      messagesCount: messagesAgg._count._all,
-      lastMessageAt: messagesAgg._max.createdAt,
-      waha: { 
-        health: wahaHealth,
-        lastMessageAt: messagesAgg._max.createdAt
-      },
-    })
+    return NextResponse.json({ sessions: { total, active } })
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Unexpected error"
     return NextResponse.json({ error: message }, { status: 500 })
   }
-}
+})

@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
 import { z } from "zod"
+import { withAuth } from "@/lib/withAuth"
 
 const PatchSchema = z.object({ enabled: z.boolean() })
 
-export async function PATCH(req: Request, ctx: { params: Promise<{ slug: string; id: string }> }) {
+export const PATCH = withAuth(async (req, ctx: { params: Promise<{ slug: string; id: string }> }, session) => {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     const { slug, id } = await ctx.params
 
     const json = await req.json().catch(() => null)
@@ -32,12 +29,10 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ slug: string;
     const message = e instanceof Error ? e.message : "Unexpected error"
     return NextResponse.json({ error: message }, { status: 500 })
   }
-}
+})
 
-export async function DELETE(_req: Request, ctx: { params: Promise<{ slug: string; id: string }> }) {
+export const DELETE = withAuth(async (_req, ctx: { params: Promise<{ slug: string; id: string }> }, session) => {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     const { slug, id } = await ctx.params
 
     const app = await prisma.application.findFirst({ where: { userId: session.user.id, slug } })
@@ -49,4 +44,4 @@ export async function DELETE(_req: Request, ctx: { params: Promise<{ slug: strin
     const message = e instanceof Error ? e.message : "Unexpected error"
     return NextResponse.json({ error: message }, { status: 500 })
   }
-}
+})
