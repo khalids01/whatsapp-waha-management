@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export type ApiMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -78,23 +77,33 @@ export default function ApiTester({ endpoint, defaultApiKey }: { endpoint: ApiEn
           </div>
         )}
 
-        <Tabs defaultValue="expected">
-          <TabsList>
-            <TabsTrigger value="expected">Expected Response</TabsTrigger>
-            <TabsTrigger value="body" disabled={endpoint.method === "GET" || endpoint.method === "DELETE"}>Body</TabsTrigger>
-            <TabsTrigger value="actual">Actual Response</TabsTrigger>
-          </TabsList>
-          <TabsContent value="expected">
-            <Textarea readOnly value={endpoint.expectedResponse ? JSON.stringify(endpoint.expectedResponse, null, 2) : "-"} className="font-mono min-h-40" />
-          </TabsContent>
-          <TabsContent value="body">
-            <Textarea value={body} onChange={(e) => setBody(e.target.value)} className="font-mono min-h-40" />
-          </TabsContent>
-          <TabsContent value="actual">
-            <div className="text-xs text-muted-foreground mb-2">{respStatus}</div>
-            <Textarea readOnly value={respBody} className="font-mono min-h-40" />
-          </TabsContent>
-        </Tabs>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Body</div>
+            <Textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              className="font-mono min-h-40"
+              disabled={endpoint.method === "GET" || endpoint.method === "DELETE"}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium">{respStatus ? "Actual Response" : "Expected Response"}</div>
+              {respStatus && <div className="text-[10px] text-muted-foreground font-mono">{respStatus}</div>}
+            </div>
+            <Textarea
+              readOnly
+              value={
+                respStatus
+                  ? respBody
+                  : (endpoint.expectedResponse ? JSON.stringify(endpoint.expectedResponse, null, 2) : "-")
+              }
+              className="font-mono min-h-40"
+            />
+          </div>
+        </div>
 
         <div className="flex justify-end">
           <Button onClick={send} disabled={loading}>{loading ? "Sending..." : "Send Request"}</Button>
