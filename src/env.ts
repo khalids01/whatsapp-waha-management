@@ -11,6 +11,16 @@ export const env = {
   WAHA_DASHBOARD_PASSWORD: process.env.WAHA_DASHBOARD_PASSWORD,
   // --- SYSTEM ---
   TZ: process.env.TZ,
+
+
+  EMAIL: process.env.EMAIL,
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
+  EMAIL_FROM: process.env.EMAIL_FROM,
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT,
+
+  ENABLE_SIGNUP: process.env.ENABLE_SIGNUP,
+
 } as const
 
 export type Env = typeof env

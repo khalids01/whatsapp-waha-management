@@ -16,11 +16,10 @@ import {
 } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-export default function SignUpPage() {
+export default function SignInPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,8 +27,8 @@ export default function SignUpPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const { error } = await authClient.signUp.email(
-      { email, password, name, callbackURL: "/" },
+    const { error } = await authClient.signIn.email(
+      { email, password, callbackURL: "/" },
       {
         onError: (ctx) => setError(ctx.error.message),
       }
@@ -42,8 +41,8 @@ export default function SignUpPage() {
     <div className="mx-auto my-16 max-w-sm px-4">
       <Card>
         <CardHeader>
-          <CardTitle>Sign Up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
+          <CardTitle>Sign In</CardTitle>
+          <CardDescription>Access your account</CardDescription>
         </CardHeader>
         <form onSubmit={onSubmit}>
           <CardContent className="space-y-4">
@@ -53,15 +52,6 @@ export default function SignUpPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             ) : null}
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -85,7 +75,7 @@ export default function SignUpPage() {
           </CardContent>
           <CardFooter className="mt-4">
             <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? "Signing up..." : "Sign Up"}
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
           </CardFooter>
         </form>

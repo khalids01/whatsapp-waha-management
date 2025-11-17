@@ -22,6 +22,7 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
 import { MessageCircle, Settings, Webhook, Users, LayoutDashboard, MessageSquare, Tags, Activity, LayoutList } from "lucide-react"
+import { UserMenu } from "@/components/common/UserMenu"
 
 const nav = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -87,7 +88,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <header className="bg-background/60 sticky top-0 z-10 flex h-12 items-center gap-2 border-b px-2 backdrop-blur">
           <SidebarTrigger />
           <div className="ml-auto flex items-center gap-2">
+            
             <ThemeToggle />
+            <UserMenu/>
           </div>
         </header>
         <div className="p-4">{children}</div>

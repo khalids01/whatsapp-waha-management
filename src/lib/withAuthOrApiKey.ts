@@ -20,7 +20,6 @@ export function withAuthOrApiKey<TCtx = unknown>(
     if (session) {
       return handler(req, ctx, { kind: "session", session })
     }
-
     // Try API key
     const apiKeyHeader = req.headers.get("x-api-key") || req.headers.get("X-Api-Key")
     if (apiKeyHeader) {
