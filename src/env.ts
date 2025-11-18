@@ -19,7 +19,7 @@ export const env = {
   SMTP_HOST: process.env.SMTP_HOST,
   SMTP_PORT: process.env.SMTP_PORT,
 
-  ENABLE_SIGNUP: process.env.ENABLE_SIGNUP,
+  DISABLE_SIGNUP: process.env.DISABLE_SIGNUP,
 
 } as const
 

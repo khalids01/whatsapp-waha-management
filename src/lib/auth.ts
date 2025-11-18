@@ -52,7 +52,8 @@ export const auth = betterAuth({
         }
       },
       // When signup is disabled, Better Auth will only allow magic link sign-in for existing users
-      disableSignUp: !!env.ENABLE_SIGNUP && env.ENABLE_SIGNUP == "true" ? true : false,
+      disableSignUp: !!env.DISABLE_SIGNUP && env.DISABLE_SIGNUP == "true" ? true : false,
+      
     }),
   ],
 })
