@@ -1,14 +1,54 @@
-# WAHA Dockerfile (WhatsApp HTTP API)
-FROM devlikeapro/waha:latest
+# -------------------------------
+# Base image
+# -------------------------------
+FROM node:24-bookworm-slim
 
-# The app listens on 3000 *inside* the container
-EXPOSE 3000
+WORKDIR /app
 
-# Persist sessions & media
-# VOLUME ["/app/.sessions", "/app/.media"]
+# -------------------------------
+# System dependencies (Prisma)
+# -------------------------------
+RUN apt-get update && apt-get install -y \
+    openssl \
+    libssl3 \
+    libc6 \
+    libgcc-s1 \
+    libstdc++6 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Healthcheck runs *inside* the container → use 3000
-# HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-# CMD curl -f http://localhost:3000/health || exit 1
+# -------------------------------
+# Install dependencies
+# -------------------------------
+COPY package.json package-lock.json* ./
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-# Do NOT add CMD/ENTRYPOINT — the base image starts WAHA itself
+# -------------------------------
+# Copy source
+# -------------------------------
+COPY . .
+
+# -------------------------------
+# Prisma client
+# -------------------------------
+RUN npx prisma generate
+
+# -------------------------------
+# Build Next.js
+# -------------------------------
+RUN npm run build
+
+# -------------------------------
+# Non-root user
+# -------------------------------
+RUN useradd -ms /bin/bash -u 10001 appuser
+
+USER appuser
+
+# -------------------------------
+# Runtime
+# -------------------------------
+ENV NODE_ENV=production
+EXPOSE 3003
+
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]

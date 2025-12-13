@@ -11,6 +11,17 @@ services:
       # API key for auth (send in header: X-Api-Key)
       WAHA_API_KEY: ${WAHA_API_KEY}
 
-
     # Behave like the simple docker run command; let the image defaults handle other env & health
+    restart: unless-stopped
+
+  waha-whatsapp-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: waha-whatsapp-manager:latest
+    container_name: waha-whatsapp-manager
+    env_file:
+      - .env
+    ports:
+      - "3003:3003"
     restart: unless-stopped
