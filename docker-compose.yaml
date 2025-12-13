@@ -6,11 +6,9 @@ services:
     # Map host 6000 → container 3000 (WAHA always runs on 3000 internally)
     ports:
       - "6000:3000"
-
-    environment:
-      # API key for auth (send in header: X-Api-Key)
-      WAHA_API_KEY: ${WAHA_API_KEY}
-
+    
+    env_file:
+      - .env
     # Behave like the simple docker run command; let the image defaults handle other env & health
     restart: unless-stopped
 
